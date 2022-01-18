@@ -1,0 +1,544 @@
+
+Video Link for easy setup for replica set in mongoDB.
+https://youtu.be/bJo7nr9xdrQ
+
+STEP BY STEP SOLUTION
+
+step 1:
+
+C:\Windows\system32>cd C:\Program Files\MongoDB\Server\5.0\bin
+
+C:\Program Files\MongoDB\Server\5.0\bin>
+C:\Program Files\MongoDB\Server\5.0\bin>mongod --dbpath "C:\Program Files\MongoDB\Server\5.0\data" --logpath "C:\Program Files\MongoDB\Server\5.0\log\mongod.log" --port 27017 --storageEngine=wiredTiger --journal --replSet rhngdb
+{"t":{"$date":"2022-01-16T09:33:57.353Z"},"s":"I",  "c":"CONTROL",  "id":20697,   "ctx":"-","msg":"Renamed existing log file","attr":{"oldLogPath":"C:\\Program Files\\MongoDB\\Server\\5.0\\log\\mongod.log","newLogPath":"C:\\Program Files\\MongoDB\\Server\\5.0\\log\\mongod.log.2022-01-16T09-33-57"}}
+
+step 2:
+
+C:\Windows\system32>cd C:\Program Files\MongoDB\Server\5.0\bin
+
+C:\Program Files\MongoDB\Server\5.0\bin>mongod --dbpath "C:\data1\db" --logpath "C:\data1\log\mongod.log" --port 27020 --storageEngine=wiredTiger --journal --replSet rhngdb
+
+
+step 3:
+C:\Windows\system32>cd C:\Program Files\MongoDB\Server\5.0\bin
+
+C:\Program Files\MongoDB\Server\5.0\bin>mongod --dbpath "C:\data2\db" --logpath "C:\data2\log\mongod.log" --port 27021 --storageEngine=wiredTiger --journal --replSet rhngdb
+
+
+step 4:
+
+
+C:\Windows\system32>mongo --port 27017
+MongoDB shell version v5.0.5
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("758fdb14-73f1-464a-9ab6-23569dfbf35d") }
+MongoDB server version: 5.0.5
+================
+Warning: the "mongo" shell has been superseded by "mongosh",
+which delivers improved usability and compatibility.The "mongo" shell has been deprecated and will be removed in
+an upcoming release.
+For installation instructions, see
+https://docs.mongodb.com/mongodb-shell/install/
+================
+---
+The server generated these startup warnings when booting:
+        2022-01-16T15:03:58.492+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+        2022-01-16T15:03:58.492+05:30: This server is bound to localhost. Remote systems will be unable to connect to this server. Start the server with --bind_ip <address> to specify which IP addresses it should serve responses from, or with --bind_ip_all to bind to all interfaces. If this behavior is desired, start the server with --bind_ip 127.0.0.1 to disable this warning
+---
+---
+        Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+        metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+        The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+        and anyone you share the URL with. MongoDB may use this information to make product
+        improvements and to suggest MongoDB products and deployment options to you.
+
+        To enable free monitoring, run the following command: db.enableFreeMonitoring()
+        To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+> show dbs
+uncaught exception: Error: listDatabases failed:{
+        "topologyVersion" : {
+                "processId" : ObjectId("61e3e685113982a53a108048"),
+                "counter" : NumberLong(0)
+        },
+        "ok" : 0,
+        "errmsg" : "not master and slaveOk=false",
+        "code" : 13435,
+        "codeName" : "NotPrimaryNoSecondaryOk"
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+Mongo.prototype.getDBs/<@src/mongo/shell/mongo.js:145:19
+Mongo.prototype.getDBs@src/mongo/shell/mongo.js:97:12
+shellHelper.show@src/mongo/shell/utils.js:956:13
+shellHelper@src/mongo/shell/utils.js:838:15
+@(shellhelp2):1:1
+>
+> rsconf={_id:"rhngdb",members:[{_id:0,host:"localhost:27017"}]}
+{
+        "_id" : "rhngdb",
+        "members" : [
+                {
+                        "_id" : 0,
+                        "host" : "localhost:27017"
+                }
+        ]
+}
+> rs.initiate(rsconf)
+{ "ok" : 1 }
+rhngdb:SECONDARY>
+rhngdb:PRIMARY> show dbs
+HNGDB   0.000GB
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+rhngdb:PRIMARY> rs.add("localhost:27020")
+{
+        "ok" : 1,
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326222, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326222, 1)
+}
+rhngdb:PRIMARY> rs.status()
+{
+        "set" : "rhngdb",
+        "date" : ISODate("2022-01-16T09:43:59.308Z"),
+        "myState" : 1,
+        "term" : NumberLong(1),
+        "syncSourceHost" : "",
+        "syncSourceId" : -1,
+        "heartbeatIntervalMillis" : NumberLong(2000),
+        "majorityVoteCount" : 2,
+        "writeMajorityCount" : 2,
+        "votingMembersCount" : 2,
+        "writableVotingMembersCount" : 2,
+        "optimes" : {
+                "lastCommittedOpTime" : {
+                        "ts" : Timestamp(1642326238, 1),
+                        "t" : NumberLong(1)
+                },
+                "lastCommittedWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                "readConcernMajorityOpTime" : {
+                        "ts" : Timestamp(1642326238, 1),
+                        "t" : NumberLong(1)
+                },
+                "appliedOpTime" : {
+                        "ts" : Timestamp(1642326238, 1),
+                        "t" : NumberLong(1)
+                },
+                "durableOpTime" : {
+                        "ts" : Timestamp(1642326238, 1),
+                        "t" : NumberLong(1)
+                },
+                "lastAppliedWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                "lastDurableWallTime" : ISODate("2022-01-16T09:43:58.796Z")
+        },
+        "lastStableRecoveryTimestamp" : Timestamp(1642326230, 1),
+        "electionCandidateMetrics" : {
+                "lastElectionReason" : "electionTimeout",
+                "lastElectionDate" : ISODate("2022-01-16T09:40:54.932Z"),
+                "electionTerm" : NumberLong(1),
+                "lastCommittedOpTimeAtElection" : {
+                        "ts" : Timestamp(1642326054, 1),
+                        "t" : NumberLong(-1)
+                },
+                "lastSeenOpTimeAtElection" : {
+                        "ts" : Timestamp(1642326054, 1),
+                        "t" : NumberLong(-1)
+                },
+                "numVotesNeeded" : 1,
+                "priorityAtElection" : 1,
+                "electionTimeoutMillis" : NumberLong(10000),
+                "newTermStartDate" : ISODate("2022-01-16T09:40:54.957Z"),
+                "wMajorityWriteAvailabilityDate" : ISODate("2022-01-16T09:40:54.971Z")
+        },
+        "members" : [
+                {
+                        "_id" : 0,
+                        "name" : "localhost:27017",
+                        "health" : 1,
+                        "state" : 1,
+                        "stateStr" : "PRIMARY",
+                        "uptime" : 602,
+                        "optime" : {
+                                "ts" : Timestamp(1642326238, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDate" : ISODate("2022-01-16T09:43:58Z"),
+                        "lastAppliedWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                        "lastDurableWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                        "syncSourceHost" : "",
+                        "syncSourceId" : -1,
+                        "infoMessage" : "",
+                        "electionTime" : Timestamp(1642326054, 2),
+                        "electionDate" : ISODate("2022-01-16T09:40:54Z"),
+                        "configVersion" : 3,
+                        "configTerm" : 1,
+                        "self" : true,
+                        "lastHeartbeatMessage" : ""
+                },
+                {
+                        "_id" : 1,
+                        "name" : "localhost:27020",
+                        "health" : 1,
+                        "state" : 2,
+                        "stateStr" : "SECONDARY",
+                        "uptime" : 16,
+                        "optime" : {
+                                "ts" : Timestamp(1642326230, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDurable" : {
+                                "ts" : Timestamp(1642326230, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDate" : ISODate("2022-01-16T09:43:50Z"),
+                        "optimeDurableDate" : ISODate("2022-01-16T09:43:50Z"),
+                        "lastAppliedWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                        "lastDurableWallTime" : ISODate("2022-01-16T09:43:58.796Z"),
+                        "lastHeartbeat" : ISODate("2022-01-16T09:43:58.793Z"),
+                        "lastHeartbeatRecv" : ISODate("2022-01-16T09:43:59.306Z"),
+                        "pingMs" : NumberLong(0),
+                        "lastHeartbeatMessage" : "",
+                        "syncSourceHost" : "localhost:27017",
+                        "syncSourceId" : 0,
+                        "infoMessage" : "",
+                        "configVersion" : 3,
+                        "configTerm" : 1
+                }
+        ],
+        "ok" : 1,
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326238, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326238, 1)
+}
+rhngdb:PRIMARY> rs.add("localhost:27021")
+{
+        "ok" : 1,
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326296, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326296, 1)
+}
+rhngdb:PRIMARY> rs.status()
+{
+        "set" : "rhngdb",
+        "date" : ISODate("2022-01-16T09:45:02.724Z"),
+        "myState" : 1,
+        "term" : NumberLong(1),
+        "syncSourceHost" : "",
+        "syncSourceId" : -1,
+        "heartbeatIntervalMillis" : NumberLong(2000),
+        "majorityVoteCount" : 2,
+        "writeMajorityCount" : 2,
+        "votingMembersCount" : 2,
+        "writableVotingMembersCount" : 2,
+        "optimes" : {
+                "lastCommittedOpTime" : {
+                        "ts" : Timestamp(1642326296, 1),
+                        "t" : NumberLong(1)
+                },
+                "lastCommittedWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                "readConcernMajorityOpTime" : {
+                        "ts" : Timestamp(1642326296, 1),
+                        "t" : NumberLong(1)
+                },
+                "appliedOpTime" : {
+                        "ts" : Timestamp(1642326296, 1),
+                        "t" : NumberLong(1)
+                },
+                "durableOpTime" : {
+                        "ts" : Timestamp(1642326296, 1),
+                        "t" : NumberLong(1)
+                },
+                "lastAppliedWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                "lastDurableWallTime" : ISODate("2022-01-16T09:44:56.956Z")
+        },
+        "lastStableRecoveryTimestamp" : Timestamp(1642326284, 1),
+        "electionCandidateMetrics" : {
+                "lastElectionReason" : "electionTimeout",
+                "lastElectionDate" : ISODate("2022-01-16T09:40:54.932Z"),
+                "electionTerm" : NumberLong(1),
+                "lastCommittedOpTimeAtElection" : {
+                        "ts" : Timestamp(1642326054, 1),
+                        "t" : NumberLong(-1)
+                },
+                "lastSeenOpTimeAtElection" : {
+                        "ts" : Timestamp(1642326054, 1),
+                        "t" : NumberLong(-1)
+                },
+                "numVotesNeeded" : 1,
+                "priorityAtElection" : 1,
+                "electionTimeoutMillis" : NumberLong(10000),
+                "newTermStartDate" : ISODate("2022-01-16T09:40:54.957Z"),
+                "wMajorityWriteAvailabilityDate" : ISODate("2022-01-16T09:40:54.971Z")
+        },
+        "members" : [
+                {
+                        "_id" : 0,
+                        "name" : "localhost:27017",
+                        "health" : 1,
+                        "state" : 1,
+                        "stateStr" : "PRIMARY",
+                        "uptime" : 665,
+                        "optime" : {
+                                "ts" : Timestamp(1642326296, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDate" : ISODate("2022-01-16T09:44:56Z"),
+                        "lastAppliedWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                        "lastDurableWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                        "syncSourceHost" : "",
+                        "syncSourceId" : -1,
+                        "infoMessage" : "",
+                        "electionTime" : Timestamp(1642326054, 2),
+                        "electionDate" : ISODate("2022-01-16T09:40:54Z"),
+                        "configVersion" : 4,
+                        "configTerm" : 1,
+                        "self" : true,
+                        "lastHeartbeatMessage" : ""
+                },
+                {
+                        "_id" : 1,
+                        "name" : "localhost:27020",
+                        "health" : 1,
+                        "state" : 2,
+                        "stateStr" : "SECONDARY",
+                        "uptime" : 79,
+                        "optime" : {
+                                "ts" : Timestamp(1642326296, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDurable" : {
+                                "ts" : Timestamp(1642326296, 1),
+                                "t" : NumberLong(1)
+                        },
+                        "optimeDate" : ISODate("2022-01-16T09:44:56Z"),
+                        "optimeDurableDate" : ISODate("2022-01-16T09:44:56Z"),
+                        "lastAppliedWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                        "lastDurableWallTime" : ISODate("2022-01-16T09:44:56.956Z"),
+                        "lastHeartbeat" : ISODate("2022-01-16T09:45:00.960Z"),
+                        "lastHeartbeatRecv" : ISODate("2022-01-16T09:45:00.967Z"),
+                        "pingMs" : NumberLong(0),
+                        "lastHeartbeatMessage" : "",
+                        "syncSourceHost" : "localhost:27017",
+                        "syncSourceId" : 0,
+                        "infoMessage" : "",
+                        "configVersion" : 4,
+                        "configTerm" : 1
+                },
+                {
+                        "_id" : 2,
+                        "name" : "localhost:27021",
+                        "health" : 1,
+                        "state" : 5,
+                        "stateStr" : "STARTUP2",
+                        "uptime" : 5,
+                        "optime" : {
+                                "ts" : Timestamp(0, 0),
+                                "t" : NumberLong(-1)
+                        },
+                        "optimeDurable" : {
+                                "ts" : Timestamp(0, 0),
+                                "t" : NumberLong(-1)
+                        },
+                        "optimeDate" : ISODate("1970-01-01T00:00:00Z"),
+                        "optimeDurableDate" : ISODate("1970-01-01T00:00:00Z"),
+                        "lastAppliedWallTime" : ISODate("1970-01-01T00:00:00Z"),
+                        "lastDurableWallTime" : ISODate("1970-01-01T00:00:00Z"),
+                        "lastHeartbeat" : ISODate("2022-01-16T09:45:00.958Z"),
+                        "lastHeartbeatRecv" : ISODate("2022-01-16T09:45:02.483Z"),
+                        "pingMs" : NumberLong(0),
+                        "lastHeartbeatMessage" : "",
+                        "syncSourceHost" : "localhost:27020",
+                        "syncSourceId" : 1,
+                        "infoMessage" : "",
+                        "configVersion" : 4,
+                        "configTerm" : 1
+                }
+        ],
+        "ok" : 1,
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326296, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326296, 1)
+}
+rhngdb:PRIMARY>
+
+
+step:5
+
+C:\Windows\system32>mongo --port 27020
+MongoDB shell version v5.0.5
+connecting to: mongodb://127.0.0.1:27020/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("d1c462c8-b93f-4bf3-965e-98be61831ebf") }
+MongoDB server version: 5.0.5
+================
+Warning: the "mongo" shell has been superseded by "mongosh",
+which delivers improved usability and compatibility.The "mongo" shell has been deprecated and will be removed in
+an upcoming release.
+For installation instructions, see
+https://docs.mongodb.com/mongodb-shell/install/
+================
+---
+The server generated these startup warnings when booting:
+        2022-01-16T15:05:20.900+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+        2022-01-16T15:05:20.901+05:30: This server is bound to localhost. Remote systems will be unable to connect to this server. Start the server with --bind_ip <address> to specify which IP addresses it should serve responses from, or with --bind_ip_all to bind to all interfaces. If this behavior is desired, start the server with --bind_ip 127.0.0.1 to disable this warning
+---
+---
+        Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+        metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+        The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+        and anyone you share the URL with. MongoDB may use this information to make product
+        improvements and to suggest MongoDB products and deployment options to you.
+
+        To enable free monitoring, run the following command: db.enableFreeMonitoring()
+        To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+> show dbs
+uncaught exception: Error: listDatabases failed:{
+        "topologyVersion" : {
+                "processId" : ObjectId("61e3e6d8af74b53422cbf774"),
+                "counter" : NumberLong(6)
+        },
+        "ok" : 0,
+        "errmsg" : "not master and slaveOk=false",
+        "code" : 13435,
+        "codeName" : "NotPrimaryNoSecondaryOk",
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326385, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326385, 1)
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+Mongo.prototype.getDBs/<@src/mongo/shell/mongo.js:145:19
+Mongo.prototype.getDBs@src/mongo/shell/mongo.js:97:12
+shellHelper.show@src/mongo/shell/utils.js:956:13
+shellHelper@src/mongo/shell/utils.js:838:15
+@(shellhelp2):1:1
+rhngdb:SECONDARY> rs.slaveOk()
+WARNING: slaveOk() is deprecated and may be removed in the next major release. Please use secondaryOk() instead.
+rhngdb:SECONDARY> show dbs
+HNGDB   0.000GB
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+rhngdb:SECONDARY>
+
+step:6
+
+C:\Windows\system32>mongo --port 27021
+MongoDB shell version v5.0.5
+connecting to: mongodb://127.0.0.1:27021/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("fea75dea-ea43-4c31-bc2b-f5b20227b905") }
+MongoDB server version: 5.0.5
+================
+Warning: the "mongo" shell has been superseded by "mongosh",
+which delivers improved usability and compatibility.The "mongo" shell has been deprecated and will be removed in
+an upcoming release.
+For installation instructions, see
+https://docs.mongodb.com/mongodb-shell/install/
+================
+---
+The server generated these startup warnings when booting:
+        2022-01-16T15:05:55.225+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+        2022-01-16T15:05:55.226+05:30: This server is bound to localhost. Remote systems will be unable to connect to this server. Start the server with --bind_ip <address> to specify which IP addresses it should serve responses from, or with --bind_ip_all to bind to all interfaces. If this behavior is desired, start the server with --bind_ip 127.0.0.1 to disable this warning
+---
+---
+        Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+        metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+        The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+        and anyone you share the URL with. MongoDB may use this information to make product
+        improvements and to suggest MongoDB products and deployment options to you.
+
+        To enable free monitoring, run the following command: db.enableFreeMonitoring()
+        To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+> show dbs
+uncaught exception: Error: listDatabases failed:{
+        "topologyVersion" : {
+                "processId" : ObjectId("61e3e6fa834210f936ce424f"),
+                "counter" : NumberLong(4)
+        },
+        "ok" : 0,
+        "errmsg" : "not master and slaveOk=false",
+        "code" : 13435,
+        "codeName" : "NotPrimaryNoSecondaryOk",
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326334, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326334, 1)
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+Mongo.prototype.getDBs/<@src/mongo/shell/mongo.js:145:19
+Mongo.prototype.getDBs@src/mongo/shell/mongo.js:97:12
+shellHelper.show@src/mongo/shell/utils.js:956:13
+shellHelper@src/mongo/shell/utils.js:838:15
+@(shellhelp2):1:1
+rhngdb:SECONDARY> show dbs
+uncaught exception: Error: listDatabases failed:{
+        "topologyVersion" : {
+                "processId" : ObjectId("61e3e6fa834210f936ce424f"),
+                "counter" : NumberLong(4)
+        },
+        "ok" : 0,
+        "errmsg" : "not master and slaveOk=false",
+        "code" : 13435,
+        "codeName" : "NotPrimaryNoSecondaryOk",
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1642326344, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        },
+        "operationTime" : Timestamp(1642326344, 1)
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+Mongo.prototype.getDBs/<@src/mongo/shell/mongo.js:145:19
+Mongo.prototype.getDBs@src/mongo/shell/mongo.js:97:12
+shellHelper.show@src/mongo/shell/utils.js:956:13
+shellHelper@src/mongo/shell/utils.js:838:15
+@(shellhelp2):1:1
+rhngdb:SECONDARY> rs.slaveOk()
+WARNING: slaveOk() is deprecated and may be removed in the next major release. Please use secondaryOk() instead.
+rhngdb:SECONDARY> show dbs
+HNGDB   0.000GB
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+rhngdb:SECONDARY>
+
+
+
+
+
+
